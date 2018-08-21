@@ -5,14 +5,12 @@ import Router from 'next/router'
 class Sidebar extends Component {
   constructor (props) {
     super(props)
-
     this.state = {}
   }
 
   handleLogout = () => {
-    // localStorage.removeItem('currentUser')
-    // this.props.logOut()
-    Router.push('/wallet')
+    localStorage.removeItem('currentUser')
+    Router.push('/login')
   }
 
   render() {
@@ -33,7 +31,7 @@ class Sidebar extends Component {
               background-color: orange;
               color:#FFFFFF;
               outline: none;
-              width: 200px;
+              width: 90%;
               margin-top: 10px;
               cursor: pointer;
               font-size: 21px;
@@ -43,13 +41,13 @@ class Sidebar extends Component {
         <div className='control'>
           <div>
             <ul>
-              <li><Link href='/user'><a>User Info</a></Link></li>
-              <li><Link href='/wallet'><a>Quan ly Vi</a></Link></li>
-              <li><Link href='/expenditure'><a>Quan ly Thu chi</a></Link></li>
-              <li><Link href='/transaction'><a>Quan ly giao dich</a></Link></li>
+              <li><Link href='/'><a>Thông tin cơ bản</a></Link></li>
+              <li><Link href='/wallet'><a>Quản lý Ví</a></Link></li>
+              <li><Link href='/expenditure'><a>Quản lý thu chi</a></Link></li>
+              <li><Link href='/transaction'><a>Quản lý giao dịch</a></Link></li>
             </ul>
           </div>
-          <button type='button' className='btn btn-danger dropdown-toggle' >Logout</button>
+          <button type='button' className='btn btn-danger dropdown-toggle' onClick={this.handleLogout}>Logout</button>
         </div>
       </>
     )

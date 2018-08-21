@@ -1,28 +1,46 @@
 import React, { Component } from 'react'
 import GoogleLogin from 'react-google-login'
 import Router from 'next/router'
+
 class Login extends Component {
   constructor(props) {
     super(props)
-    this.state = {}
+    this.state = {
+      currentUser : null
+    }
+  }
+
+  componentDidMount () {
+    const currentUser = localStorage.getItem('currentUser')
+    this.setState({
+      currentUser: currentUser
+    })
   }
 
   responseGoogleSuccess = (response) => {
     const userInfo = response.profileObj
-    console.log(userInfo);
     localStorage.setItem('currentUser',userInfo.googleId)
     localStorage.setItem(userInfo.googleId,JSON.stringify({
+      isLogin: true,
       user: {
         name: userInfo.name,
-        email: userInfo.email
+        email: userInfo.email,
+        id: userInfo.googleId
       }
     }))
-    Router.push('/index')
+    Router.push('/')
   }
+
   responseGoogleFail = (response) => (
     console.log('Login Fail')
   )
+
   render () {
+    const {currentUser} = this.state
+    if(currentUser){
+      Router.push('/')
+      return <React.Fragment />
+    }
     return (
       <>
         <style jsx='true'>

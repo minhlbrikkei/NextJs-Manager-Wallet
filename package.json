@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "lodash": "^4.17.10",
     "next": "^6.1.1",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
