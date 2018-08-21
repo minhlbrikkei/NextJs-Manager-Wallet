@@ -32,9 +32,15 @@ class User extends Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-    const {id} = this.state.user
-    console.log(id)
-    localStorage.setItem(id, JSON.stringify(this.state))
+    const { id } = this.state.user
+    const userInfo = JSON.parse(localStorage.getItem(userID))
+    const { isLogin, wallets, transactions } = userInfo
+    localStorage.setItem(userID, JSON.stringify({
+      isLogin: isLogin,
+      user: this.state,
+      wallets: wallets,
+      transactions: transactions
+    }))
     Router.push('/login')
   }
 
@@ -42,21 +48,43 @@ class User extends Component {
     const { user, isLogin } = this.props
     const { name, email } = this.state.user
     return (
-      <form onSubmit={this.handleSubmit}>
-        <div>
-          <label>
-            Email:
+      <>
+        <style jsx='true'>
+        {`
+          form{
+            padding: 20px;
+          }
+          .row{
+            margin-bottom: 10px;
+          }
+          .emailInfo{
+            background-color: gray;
+          }
+          input{
+            margin-left: 10px;
+            width: 300px;
+            height: 40px;
+            padding: 3px 5px;
+            font-size: 1.2em;
+          }
+        `}
+        </style>
+        <form onSubmit={this.handleSubmit}>
+          <div className='row'>
+            <label>
+              Email:
             <input className='emailInfo' type='text' name='email' value={email} readOnly />
-          </label>
-        </div>
-        <div>
-          <label>
-            Name:
+            </label>
+          </div>
+          <div className='row'>
+            <label>
+              Name:
             <input className='nameInfo' type='text' name='name' value={name} onChange={this.handleChange} />
-          </label>
-        </div>
-        <input type='submit' value='Update' />
-      </form>
+            </label>
+          </div>
+          <input type='submit' value='Update' />
+        </form>
+      </>
     )
   }
 }

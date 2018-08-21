@@ -55,18 +55,23 @@ const Layout = (WrappedComponent) => {
               padding: 5px 10px;
               border-right: 1px dotted #000000;
               min-height: 1000px;
+              background-color: #FFDEAD;
             }
             .content{
               float: left;
               width: 80%;
+              min-height: 1000px;
               box-sizing: border-box;
               padding: 5px 10px;
+              background-color: #FFDEAD;
             }
             h1{
               text-align: center;
               margin-top: 10px;
               font-size: 32px;
               border-bottom: 1px solid #000000;
+              background-color: #1F232A;
+              color: #FFFFFF;
             }
           `}
           </style>

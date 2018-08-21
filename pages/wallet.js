@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import Router from 'next/router'
 import Layout from '../components/Layout'
-import _ from 'lodash'
 
 class Wallet extends Component {
   constructor(props) {
@@ -14,12 +13,13 @@ class Wallet extends Component {
   }
 
   handleAddWallet = () => {
+    let balance = prompt("Enter balance: ", "100")
     const {isLogin, user} = this.props
     let {wallets, userID} = this.state
 
     let wallet = {
-      id: _.uniqueId(),
-      money: 0,
+      id: '_' + Math.random().toString(36).substr(2, 9),
+      money: balance,
       name: 'wallet'
     }
   
@@ -52,40 +52,45 @@ class Wallet extends Component {
   }
 
   handleEdit = (id) => {
-    let name = prompt("Enter wallet name : ", "enter wallet name")
-    const {isLogin, user} = this.props
+    let name = prompt("Enter wallet name : ", "wallet 0")
     let {wallets, userID} = this.state
     wallets.map((item, index) => {
       if(item.id === id){
         item.name = name
       }
     })
+    const userInfo = JSON.parse(localStorage.getItem(userID))
+    const {isLogin, user, transactions} = userInfo
+    localStorage.setItem(userID,JSON.stringify({
+      isLogin: isLogin,
+      user: user,
+      wallets: wallets,
+      transactions: transactions
+    }))
     this.setState({
       userID: userID,
       wallets: wallets
     })
-    localStorage.setItem(userID,JSON.stringify({
-      isLogin: isLogin,
-      user: user,
-      wallets: wallets
-    }))
   } 
+
   handleRemove = (id) => {
-    const {isLogin, user} = this.props
     let {wallets, userID} = this.state
     wallets.map((item, index) => {
       if(item.id === id){
         wallets.splice(index,1)
       }
     })
-    this.setState({
-      wallets: wallets
-    })
+    const userInfo = JSON.parse(localStorage.getItem(userID))
+    const {isLogin, user, transactions} = userInfo
     localStorage.setItem(userID,JSON.stringify({
       isLogin: isLogin,
       user: user,
-      wallets: wallets
+      wallets: wallets,
+      transactions: transactions
     }))
+    this.setState({
+      wallets: wallets
+    })
   }
 
   render () {
@@ -141,7 +146,7 @@ class Wallet extends Component {
             wallets.map((item, index) => (
               <div className='wallet' key={index}>
                 <div className='walletName'>{item.name}</div>
-                <button className='money'>{item.money} $</button>
+                <button className='money'>{item.money}$</button>
                 <button onClick={ () => this.handleEdit(item.id) } className='edit'>Edit</button>
                 <button onClick={ () => this.handleRemove(item.id) } className='remove'>Remove</button>
               </div>

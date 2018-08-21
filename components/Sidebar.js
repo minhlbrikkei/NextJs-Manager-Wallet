@@ -43,8 +43,9 @@ class Sidebar extends Component {
             <ul>
               <li><Link href='/'><a>Thông tin cơ bản</a></Link></li>
               <li><Link href='/wallet'><a>Quản lý Ví</a></Link></li>
+              <li><Link href='/transfers'><a>Chuyển tiền</a></Link></li>
               <li><Link href='/expenditure'><a>Quản lý thu chi</a></Link></li>
-              <li><Link href='/transaction'><a>Quản lý giao dịch</a></Link></li>
+              <li><Link href='/transaction'><a>Quan lý giao dịch</a></Link></li>
             </ul>
           </div>
           <button type='button' className='btn btn-danger dropdown-toggle' onClick={this.handleLogout}>Logout</button>

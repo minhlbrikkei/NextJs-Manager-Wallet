@@ -20,14 +20,26 @@ class Login extends Component {
   responseGoogleSuccess = (response) => {
     const userInfo = response.profileObj
     localStorage.setItem('currentUser',userInfo.googleId)
-    localStorage.setItem(userInfo.googleId,JSON.stringify({
-      isLogin: true,
-      user: {
-        name: userInfo.name,
-        email: userInfo.email,
-        id: userInfo.googleId
-      }
-    }))
+    const currentUser = JSON.parse(localStorage.getItem(userInfo.googleId))
+    if(currentUser){
+      const {user, wallets, transactions} = currentUser
+      console.log(wallets)
+      localStorage.setItem(userInfo.googleId, JSON.stringify({
+        isLogin: true,
+        user: user,
+        wallets: wallets,
+        transactions: transactions
+      }))
+    }else{
+      localStorage.setItem(userInfo.googleId, JSON.stringify({
+        isLogin: true,
+        user: {
+          name: userInfo.name,
+          email: userInfo.email,
+          id: userInfo.googleId
+        }
+      }))
+    }
     Router.push('/')
   }
 
