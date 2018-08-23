@@ -9,18 +9,24 @@ class Transfers extends Component {
       usersList: [],
       currenWalletList: [],
       walletTransferID: '',
+      walletTransferName: '',
       walletTransferBalance: '',
       walletReceiptList: [],
       receiverID: '',
+      receiverName: '',
       receiverWalletID: '',
+      receiverWalletName: '',
       moneyTransfer: 0,
-      note: ''
+      message: ''
     }
   }
 
   componentWillMount() {
     const { user: { name, email, id } } = this.props
-    const { wallets } = JSON.parse(localStorage.getItem(id))
+    let { wallets } = JSON.parse(localStorage.getItem(id))
+    if(wallets === undefined) {
+      wallets = []
+    }
     let usersList = []
     for (var i = 0, len = localStorage.length; i < len; ++i) {
       let key = localStorage.key(i)
@@ -41,8 +47,8 @@ class Transfers extends Component {
 
   handleChange = (event) => {
     const target = event.target
-    const value = target.type === 'checkbox' ? target.checked : target.value
     const name = target.name
+    let value = target.type === 'checkbox' ? target.checked : target.value
     let walletTransferBalance = 0
     let walletTransferID = null
     if (name === 'walletTransferID' && value !== 0) {
@@ -66,6 +72,7 @@ class Transfers extends Component {
       usersList.map((user, index) => {
         if (user.id === value) {
           let { wallets } = user
+          if(wallets === undefined) wallets = []
           if (id === value) {
             wallets.map((wallet, index) => {
               if (wallet.id !== walletTransferID) {
@@ -90,8 +97,8 @@ class Transfers extends Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-    const { walletTransferID, walletTransferBalance, receiverID, receiverWalletID, moneyTransfer, note } = this.state
-    const { user: { id } } = this.props
+    let { walletTransferID, walletTransferName, walletTransferBalance, receiverID, receiverName, receiverWalletID, receiverWalletName, moneyTransfer, message } = this.state
+    const { user: { id, name } } = this.props
     const transferUserID = id
 
     if (walletTransferID === '' || receiverID === '' || receiverID === '' || receiverWalletID === '') {
@@ -105,27 +112,50 @@ class Transfers extends Component {
         // handle transfer money
         const transactionID = '_' + Math.random().toString(36).substr(2, 9)
         if (transferUserID === receiverID) {
+          //Case 1: chuyen tien trong tai khoan
           let userTransaction = JSON.parse(localStorage.getItem(transferUserID))
           let walletTransaction = userTransaction.wallets
           let banlanceWalletTransaction = parseInt(walletTransferBalance) - parseInt(moneyTransfer)
-          //Case 1: chuyen tien trong tai khoan
           walletTransaction.map((wallet, index) => {
             if (wallet.id === walletTransferID) {
               wallet.money = banlanceWalletTransaction
+              walletTransferName = wallet.name
             } else if (wallet.id === receiverWalletID) {
               wallet.money = parseInt(wallet.money) + parseInt(moneyTransfer)
+              receiverWalletName = wallet.name
             }
           })
           userTransaction.wallets = walletTransaction
-          userTransaction.transactions = {
-            id: transactionID,
-            transferID: id,
-            walletTransferID: walletTransferID,
-            ReceiptID: receiverID,
-            receiverWalletID: receiverWalletID,
-            money: moneyTransfer,
-            type: 0, // chuyen tien trong tai khoan
-            note: note
+          if(Array.isArray(userTransaction.transactions)) {
+            userTransaction.transactions.push({
+              id: transactionID,
+              transferID: id,
+              walletTransferID: walletTransferID,
+              walletTransferName: walletTransferName,
+              receiptID: id,
+              receiverName: name,
+              receiverWalletID: receiverWalletID,
+              receiverWalletName: receiverWalletName,
+              money: moneyTransfer,
+              type: '2',
+              note: 'Chuyen tien trong tai khoan',
+              message: message
+            })
+          }else{
+            userTransaction.transactions = [{
+              id: transactionID,
+              transferID: id,
+              walletTransferID: walletTransferID,
+              walletTransferName: walletTransferName,
+              receiptID: id,
+              receiverName: name,
+              receiverWalletID: receiverWalletID,
+              receiverWalletName: receiverWalletName,
+              money: moneyTransfer,
+              type: '2',
+              note: 'Chuyen tien trong tai khoan',
+              message: message
+            }]
           }
           localStorage.setItem(transferUserID, JSON.stringify(userTransaction))
           alert('Chuyển tiền thành công')
@@ -133,10 +163,14 @@ class Transfers extends Component {
             walletTransferBalance: banlanceWalletTransaction,
             moneyTransfer: moneyTransfer,
             walletTransferID: walletTransferID,
+            walletTransferName: walletTransferName,
             receiverID: receiverID,
+            receiverName: name,
             receiverWalletID: receiverWalletID,
+            receiverWalletName: receiverWalletName,
             moneyTransfer: moneyTransfer,
-            note: note
+            note: 'Chuyen tien trong tai khoan',
+            message: message
           })
         } else {
         // Chuyen tien khac tai khoan
@@ -147,20 +181,51 @@ class Transfers extends Component {
           walletTransfer.map((wallet, index) => {
             if (wallet.id === walletTransferID) {
               wallet.money = banlanceWalletTransfer
+              walletTransferName = wallet.name
             }
           })
           userTransfer.wallets = walletTransfer
-          userTransfer.transactions = {
-            id: transactionID,
-            transferID: id,
-            walletTransferID: walletTransferID,
-            ReceiptID: receiverID,
-            receiverWalletID: receiverWalletID,
-            money: moneyTransfer,
-            type: 1, // chuyen tien
-            note: note
+          const receiverInfo = JSON.parse(localStorage.getItem(receiverID))
+          let receiptName = receiverInfo.user.name
+          receiverInfo.wallets.map((wallet, index) => {
+            if(wallet.id === receiverWalletID) {
+              receiverWalletName = wallet.name
+            }
+          })
+          
+          if(Array.isArray(userTransfer.transactions)) {
+            userTransfer.transactions.push({
+              id: transactionID,
+              transferID: id,
+              walletTransferID: walletTransferID,
+              walletTransferName: walletTransferName,
+              receiptID: receiverID,
+              receiverName: receiptName,
+              receiverWalletID: receiverWalletID,
+              receiverWalletName: receiverWalletName,
+              money: moneyTransfer,
+              type: '2',
+              note: 'Chuyen tien khac tai khoan',
+              message: message
+            })
+          }else{
+            userTransfer.transactions = [{
+              id: transactionID,
+              transferID: id,
+              walletTransferID: walletTransferID,
+              walletTransferName: walletTransferName,
+              receiptID: receiverID,
+              receiverName: receiptName,
+              receiverWalletID: receiverWalletID,
+              receiverWalletName: receiverWalletName,
+              money: moneyTransfer,
+              type: '2',
+              note: 'Chuyen tien khac tai khoan',
+              message: message
+            }]
           }
           localStorage.setItem(transferUserID, JSON.stringify(userTransfer))
+
           //handle user receipt
           let userReceipt = JSON.parse(localStorage.getItem(receiverID))
           let walletsReceipt = userReceipt.wallets
@@ -170,15 +235,36 @@ class Transfers extends Component {
             }
           })
           userReceipt.wallets = walletsReceipt
-          userReceipt.transactions = {
-            id: transactionID,
-            transferID: id,
-            walletTransferID: walletTransferID,
-            ReceiptID: receiverID,
-            receiverWalletID: receiverWalletID,
-            money: moneyTransfer,
-            type: 2, // chuyen tien
-            note: note
+          if(Array.isArray(userReceipt.transactions)) {
+            userReceipt.transactions.push ({
+              id: transactionID,
+              transferID: id,
+              walletTransferID: walletTransferID,
+              walletTransferName: walletTransferName,
+              receiptID: receiverID,
+              receiverName: receiptName,
+              receiverWalletID: receiverWalletID,
+              receiverWalletName: receiverWalletName,
+              money: moneyTransfer,
+              type: '1',
+              note: 'Chuyen tien khac tai khoan',
+              message: message
+            })
+          }else{
+            userReceipt.transactions = [{
+              id: transactionID,
+              transferID: id,
+              walletTransferID: walletTransferID,
+              walletTransferName: walletTransferName,
+              receiptID: receiverID,
+              receiverName: receiptName,
+              receiverWalletID: receiverWalletID,
+              receiverWalletName: receiverWalletName,
+              money: moneyTransfer,
+              type: '1',
+              note: 'Chuyen tien khac tai khoan',
+              message: message
+            }]
           }
           localStorage.setItem(receiverID, JSON.stringify(userReceipt))
           alert('Chuyển tiền thành công')
@@ -186,10 +272,13 @@ class Transfers extends Component {
             walletTransferBalance: banlanceWalletTransfer,
             moneyTransfer: moneyTransfer,
             walletTransferID: walletTransferID,
+            walletTransferName: walletTransferName,
             receiverID: receiverID,
+            receiverName: receiptName,
             receiverWalletID: receiverWalletID,
+            receiverWalletName: receiverWalletName,
             moneyTransfer: moneyTransfer,
-            note: note
+            message: message
           })
         }
       }
@@ -198,7 +287,7 @@ class Transfers extends Component {
 
   render() {
     const { user: { name, email, id } } = this.props
-    const { usersList, currenWalletList, walletTransferBalance, walletReceiptList, walletTransferID, receiverID, receiverWalletID } = this.state
+    const { usersList, currenWalletList, walletTransferBalance, walletReceiptList, walletTransferID, receiverID, receiverWalletID, moneyTransfer, message } = this.state
     return (
       <>
         <style jsx='true'>
@@ -249,7 +338,7 @@ class Transfers extends Component {
         <form onSubmit={this.handleSubmit}>
           <div className='row'><label>Người chuyển : {name}</label></div>
           <div className='row'>
-            <label>Ví chuyển:
+            <label>Ví chuyển:  
             <select name='walletTransferID' value={walletTransferID} onChange={this.handleChange}>
                 <option value="0">--- Chọn Ví--- </option>
                 {currenWalletList.map((wallet, index) => (
@@ -284,13 +373,13 @@ class Transfers extends Component {
           </div>
           <div className='row'>
             <label>Tiền chuyển:
-                <input type='number' name='moneyTransfer' value={this.state.moneyTransfer} onChange={this.handleChange} /> $
+                <input type='number' name='moneyTransfer' value={moneyTransfer} onChange={this.handleChange} /> $
               </label>
           </div>
           <div className='row'>
             <label>Ghi chú:
                 <br />
-              <textarea name='note' value={this.state.note} onChange={this.handleChange} />
+              <textarea name='message' value={message} onChange={this.handleChange} />
             </label>
           </div>
           <input type='submit' value='Chuyển Tiền' className='submit' />

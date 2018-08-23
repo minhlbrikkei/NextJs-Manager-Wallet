@@ -33,11 +33,11 @@ class User extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
     const { id } = this.state.user
-    const userInfo = JSON.parse(localStorage.getItem(userID))
+    const userInfo = JSON.parse(localStorage.getItem(id))
     const { isLogin, wallets, transactions } = userInfo
-    localStorage.setItem(userID, JSON.stringify({
+    localStorage.setItem(id, JSON.stringify({
       isLogin: isLogin,
-      user: this.state,
+      user: this.state.user,
       wallets: wallets,
       transactions: transactions
     }))
@@ -66,6 +66,18 @@ class User extends Component {
             height: 40px;
             padding: 3px 5px;
             font-size: 1.2em;
+            cusor: pointer;
+          }
+          .submit{
+            padding: 5px 10px;
+            width: 200px;
+            background-color: green;
+            font-size: 1.5em;
+            color: #FFFFFF;
+            cursor: pointer;
+            outline: none;
+            margin-left: 100px;
+            margin-top: 20px;
           }
         `}
         </style>
@@ -82,7 +94,7 @@ class User extends Component {
             <input className='nameInfo' type='text' name='name' value={name} onChange={this.handleChange} />
             </label>
           </div>
-          <input type='submit' value='Update' />
+          <input type='submit' value='Update' className='submit'/>
         </form>
       </>
     )

@@ -12,47 +12,52 @@ class Wallet extends Component {
     }
   }
 
+  componentWillMount () {
+    const {isLogin, user} = this.props
+    const {userID} = this.state
+    const { wallets, transactions } = JSON.parse(localStorage.getItem(userID))
+    if(wallets !== undefined){
+      this.setState({
+        userID: userID,
+        wallets: wallets,
+      })
+    }
+    localStorage.setItem(userID,JSON.stringify({
+      isLogin: isLogin,
+      user: user,
+      wallets: wallets,
+      transactions: transactions
+    }))
+  }
+
   handleAddWallet = () => {
-    let balance = prompt("Enter balance: ", "100")
+    let name = prompt("Enter wallet name: ", "wallet")
     const {isLogin, user} = this.props
     let {wallets, userID} = this.state
-
+    const {transactions} = JSON.parse(localStorage.getItem(userID))
     let wallet = {
       id: '_' + Math.random().toString(36).substr(2, 9),
-      money: balance,
-      name: 'wallet'
+      money: 0,
+      name: name
     }
   
     wallets.push(wallet)
     localStorage.setItem(userID,JSON.stringify({
       isLogin: isLogin,
       user: user,
-      wallets: wallets
+      wallets: wallets,
+      transactions: transactions
     }))
     this.setState({
       wallets: wallets
     })
   }
 
-  componentWillMount () {
-    const {isLogin, user} = this.props
-    const {userID} = this.state
-    const { wallets } = JSON.parse(localStorage.getItem(userID))
-    if(wallets !== undefined){
-      this.setState({
-        userID: userID,
-        wallets: wallets
-      })
+  handleEdit = (id, wallet_name) => {
+    let name = prompt("Enter wallet name : ", wallet_name)
+    if(name === '' || name === null) {
+      name = wallet_name
     }
-    localStorage.setItem(userID,JSON.stringify({
-      isLogin: isLogin,
-      user: user,
-      wallets: wallets
-    }))
-  }
-
-  handleEdit = (id) => {
-    let name = prompt("Enter wallet name : ", "wallet 0")
     let {wallets, userID} = this.state
     wallets.map((item, index) => {
       if(item.id === id){
@@ -147,7 +152,7 @@ class Wallet extends Component {
               <div className='wallet' key={index}>
                 <div className='walletName'>{item.name}</div>
                 <button className='money'>{item.money}$</button>
-                <button onClick={ () => this.handleEdit(item.id) } className='edit'>Edit</button>
+                <button onClick={ () => this.handleEdit(item.id, item.name) } className='edit'>Edit</button>
                 <button onClick={ () => this.handleRemove(item.id) } className='remove'>Remove</button>
               </div>
             ))
